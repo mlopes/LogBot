@@ -1,46 +1,62 @@
 import os
+import sys
 import time
 import signal
 
 
-def daemonize(workingdir='.', umask=0, outfile='/dev/null'):
-# Put in background
-    pid = os.fork()
-    if pid == 0:
-        # First child
-        os.setsid()
-        pid = os.fork()  # fork again
-        if pid == 0:
-            os.chdir(workingdir)
-            os.umask(umask)
-        else:
-            os._exit(0)
-    else:
-        os._exit(0)
-
-    # Close all open resources
+def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     try:
-        os.close(0)
-        os.close(1)
-        os.close(2)
-    except:
-        raise Exception("Unable to close standard output. Try running with 'nodaemon'")
-        os._exit(1)
+        pid = os.fork()
+        if pid > 0:
+            sys.exit(0)  # Exit first parent.
+    except OSError as e:
+        sys.stderr.write("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror))
+        sys.exit(1)
 
-    #Redirect output
-    os.open(outfile, os.O_RDWR | os.O_CREAT)
-    os.dup2(0, 1)
-    os.dup2(0, 2)
+    # Decouple from parent environment.
+    os.chdir("/")
+    os.umask(0)
+    os.setsid()
+
+    # Do second fork.
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.exit(0)  # Exit second parent.
+    except OSError as e:
+        sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
+        sys.exit(1)
+
+    # Now I am a daemon!
+
+    # Redirect standard file descriptors.
+    si = open(stdin, 'r')
+    so = open(stdout, 'a+')
+    se = open(stderr, 'a+')
+    os.dup2(si.fileno(), sys.stdin.fileno())
+    os.dup2(so.fileno(), sys.stdout.fileno())
+    os.dup2(se.fileno(), sys.stderr.fileno())
 
     signal.signal(signal.SIGTERM, handler)
 
-    while 1:
-        print("whiling")
-        time.sleep(5)
-
 
 def handler(signum, frame):
-    print("exiting cleanly")
-    os._exit(0)
+    if signum == signal.SIGTERM:
+        print("exiting cleanly")
+        os._exit(0)
 
-daemonize(".", 0, "logfile")
+
+def main():
+    sys.stdout.write('Daemon started with pid %d\n' % os.getpid())
+    sys.stdout.write('Daemon stdout output\n')
+    sys.stderr.write('Daemon stderr output\n')
+    c = 0
+    while 1:
+        sys.stdout.write('%d: %s\n' % (c, time.ctime(time.time())))
+        sys.stdout.flush()
+        c = c + 1
+        time.sleep(1)
+
+if __name__ == "__main__":
+    daemonize('/dev/null', '/tmp/daemon.log', '/tmp/daemon.log')
+    main()
