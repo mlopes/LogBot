@@ -4,28 +4,25 @@ import signal
 import irc.client
 
 
-def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+def make_fork(fork_num):
     try:
         pid = os.fork()
         if pid > 0:
             sys.exit(0)  # Exit first parent.
     except OSError as e:
-        sys.stderr.write("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror))
+        sys.stderr.write("fork #(%d) failed: (%d) %s\n" % (fork_num, e.errno, e.strerror))
         sys.exit(1)
 
+
+def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+    make_fork(1)
     # Decouple from parent environment.
     os.chdir("/")
     os.umask(0)
     os.setsid()
 
     # Do second fork.
-    try:
-        pid = os.fork()
-        if pid > 0:
-            sys.exit(0)  # Exit second parent.
-    except OSError as e:
-        sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
-        sys.exit(1)
+    make_fork(2)
 
     # Now I am a daemon!
 
