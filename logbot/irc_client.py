@@ -23,11 +23,11 @@ class IrcClient(object):
         connection.join(self.channel)
 
     def logger(self, connection, event):
-        sys.stdout.write(event.arguments[0])
+        sys.stdout.write("{0}: {1}\n".format(event.source.nick, event.arguments[0]))
         sys.stdout.flush()
 
     def graceful_stop(self, signum, frame):
-        self._client.disconnect_all("{0} is going home now.".format(self.bot_name))
+        self._client.disconnect_all("{0} is going home now.\n".format(self.bot_name))
         os._exit(0)
 
     def process_forever(self):
