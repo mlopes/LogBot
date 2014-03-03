@@ -1,53 +1,16 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 import signal
 import irc.client
-
-
-def make_fork(fork_num):
-    try:
-        pid = os.fork()
-        if pid > 0:
-            sys.exit(0)  # Exit first parent.
-    except OSError as e:
-        sys.stderr.write("fork #(%d) failed: (%d) %s\n" % (fork_num, e.errno, e.strerror))
-        sys.exit(1)
-
-
-def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
-    make_fork(1)
-    # Decouple from parent environment.
-    os.chdir("/")
-    os.umask(0)
-    os.setsid()
-
-    # Do second fork.
-    make_fork(2)
-
-    # Now I am a daemon!
-
-    # Redirect standard file descriptors.
-    si = open(stdin, 'r')
-    so = open(stdout, 'a+')
-    se = open(stderr, 'a+')
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(se.fileno(), sys.stderr.fileno())
-
-    signal.signal(signal.SIGTERM, handler)
+from logbot import Daemonizer
 
 
 def handler(signum, frame):
     if signum == signal.SIGTERM:
         print("exiting cleanly")
         os._exit(0)
-
-
-def main():
-    sys.stdout.write('Daemon started with pid %d\n' % os.getpid())
-    sys.stdout.write('Daemon stdout output\n')
-    sys.stderr.write('Daemon stderr output\n')
-    irciffy()
 
 
 def f(c, e):
@@ -66,5 +29,6 @@ def irciffy():
 
 
 if __name__ == "__main__":
-    daemonize('/dev/null', '/tmp/daemon.log', '/tmp/daemon.log')
-    main()
+    daemonizer = Daemonizer('/dev/null', '/tmp/daemon.log', '/tmp/daemon.log')
+    daemonizer.add_signal_handler(signal.SIGTERM, handler)
+    daemonizer.daemonize(irciffy)
