@@ -11,7 +11,8 @@ class Logger(object):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS {0} (nick, message, timestamp)".format(self._table_name))
 
     def write(self, nick, message):
-        self.cursor.execute("INSERT INTO {0} VALUES (?, ?, DATETIME('NOW')".format(self._table_name), (nick, message))
+        self.cursor.execute("INSERT INTO {0} VALUES (?, ?, DATETIME('NOW'))".format(self._table_name), (nick, message))
+        self.connection.commit()
 
     def last(self, limit):
         self.cursor.execute(
