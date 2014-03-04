@@ -26,7 +26,7 @@ class IrcClient(object):
         self.logger.write(event.source.nick, event.arguments[0])
 
     def graceful_stop(self, signum, frame):
-        self._client.disconnect_all("{0} is going home now.\n".format(self.bot_name))
+        self._client.disconnect_all("{0} is going home now.".format(self.bot_name))
         self.logger.close()
         os._exit(0)
 
