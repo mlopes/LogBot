@@ -18,7 +18,10 @@ class Logger(object):
         self.cursor.execute(
             "SELECT nick, message, timestamp FROM {0} order by timestamp DESC LIMIT ?".format(self._table_name),
             (limit, ))
-        return self.cursor.fetchall()
+
+        last_messages = self.cursor.fetchall()
+        last_messages.reverse()
+        return last_messages
 
     def close(self):
         self.connection.close()

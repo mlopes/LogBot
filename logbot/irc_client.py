@@ -17,6 +17,7 @@ class IrcClient(object):
 
     def _add_handlers(self):
         self._client_connection.add_global_handler('pubmsg', self.log)
+        self._client_connection.add_global_handler('privmsg', self.answer)
         self._client_connection.add_global_handler('welcome', self.joinner)
 
     def joinner(self, connection, event):
@@ -24,6 +25,9 @@ class IrcClient(object):
 
     def log(self, connection, event):
         self.logger.write(event.source.nick, event.arguments[0])
+
+    def answer(self, connection, event):
+        [connection.privmsg(event.source.nick, "{0}: {1}".format(*msg)) for msg in self.logger.last(10)]
 
     def graceful_stop(self, signum, frame):
         self._client.disconnect_all("{0} is going home now.".format(self.bot_name))
