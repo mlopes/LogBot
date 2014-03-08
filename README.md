@@ -3,11 +3,18 @@ LogBot
 
 A bot that runs as daemon and keeps IRC logs for consulting.
 
-It currently is just a quickly hacked prototype that connects to an hardcoded channel and writes messages to a file.
+Current Features
+----------------
 
-Planned changes:
+Currently the bot responds to private messages. It recognises the following commands:
 
- - Improve overall code quality
- - Improve signal handling
- - Add SQLite db
- - Respond to requests made by users in the IRC channel
+- help: Replies with a list of recognised commands
+- last n: shows the last n messages on the channel
+- find word: shows the messages containing "word"
+- date yyyy-mm-dd: show messages from date
+
+Planned Improvements
+--------------------
+
+ - Add a sleep between replies to prevent issues with the server cutting longer responses (can be seen if the answer to your query is to big. For example "last 20" might stop before showing all resuts)
+ - Improve presentation format of replies containing log data
