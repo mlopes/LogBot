@@ -12,7 +12,7 @@ class Parser(object):
     def __init__(self, logger):
         self.logger = logger
         self._default_limit = 50
-        self.message = None
+        self.message = ''
 
     def parse(self, message):
         for command in self._commands:
@@ -23,7 +23,6 @@ class Parser(object):
         return ("That sounds interesting! It's not like I'm falling asleep or anything like that mate.", )
 
     def _help(self):
-        self.message = None
         return (
             "help - shows these help",
             "last n - shows the last n messages on the channel",
@@ -40,7 +39,6 @@ class Parser(object):
         except ValueError:
             limit = self._default_limit
 
-        self.message = None
         return self.logger.last(limit)
 
     def _find(self):
@@ -49,14 +47,12 @@ class Parser(object):
         except ContextNotFound:
             return ("Sorry, couldn't quite understand what you're trying to find", )
 
-        self.message = None
         return self.logger.find(to_find)
 
     def _extract_context(self):
         try:
             context = self.message.partition(' ')[2]
         except:
-            self.message = None
             raise ContextNotFound
         return context
 

@@ -16,5 +16,5 @@ Currently the bot responds to private messages. It recognises the following comm
 Planned Improvements
 --------------------
 
- - Add a sleep between replies to prevent issues with the server cutting longer responses (can be seen if the answer to your query is to big. For example "last 20" might stop before showing all resuts)
+ - Add a sleep between replies to prevent issues with the server cutting longer responses (can be seen if the answer to your query is to big. For example "last 20" might stop before showing all results)
  - Improve presentation format of replies containing log data
