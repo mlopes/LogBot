@@ -4,6 +4,7 @@ import re
 class ContextNotFound(Exception):
     pass
 
+
 class Parser(object):
 
     _commands = ('help', 'last', 'find', 'date')

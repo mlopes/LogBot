@@ -1,5 +1,5 @@
 import sqlite3
-import sys
+
 
 class Logger(object):
     _table_name = 'irc_log'
@@ -20,7 +20,7 @@ class Logger(object):
 
     def last(self, limit):
         self.cursor.execute(
-            self._select(order_by = "ORDER BY timestamp DESC", limit = "LIMIT ?"),
+            self._select(order_by="ORDER BY timestamp DESC", limit="LIMIT ?"),
             (limit, ))
 
         last_messages = self.cursor.fetchall()
@@ -30,9 +30,10 @@ class Logger(object):
     def find(self, search_string):
         self.cursor.execute(
             self._select(
-                where = "WHERE message like '%{0}%'".format(search_string),
-                order_by = "ORDER BY timestamp ASC"
-            )
+                where="WHERE message like ?",
+                order_by="ORDER BY timestamp ASC"
+            ),
+            ("%{0}%".format(search_string), )
         )
 
         return tuple(self.cursor.fetchall())
@@ -40,14 +41,14 @@ class Logger(object):
     def date(self, search_date):
         self.cursor.execute(
             self._select(
-                where = "WHERE timestamp between '{0} 00:00:00' AND '{0} 23:59:59'".format(search_date),
-                order_by = "ORDER BY timestamp ASC"
-            )
+                where="WHERE timestamp between ? AND ?",
+                order_by="ORDER BY timestamp ASC"
+            ),
+            ("{0} 00:00:00".format(search_date), "{0} 23:59:59".format(search_date))
         )
         return tuple(self.cursor.fetchall())
 
-    def _select(self, where = '', order_by = '', limit = ''):
-        sys.stdout.write("SELECT nick, message, timestamp FROM {0} {1} {2} {3}".format(self._table_name, where, order_by, limit))
+    def _select(self, where='', order_by='', limit=''):
         return "SELECT nick, message, timestamp FROM {0} {1} {2} {3}".format(self._table_name, where, order_by, limit)
 
     def close(self):
