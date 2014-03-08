@@ -3,12 +3,13 @@ import sys
 
 
 class IrcClient(object):
-    def __init__(self, server, port, channel, bot_name, logger):
+    def __init__(self, server, port, channel, bot_name, logger, parser):
         self.server = server
         self.port = port
         self.channel = channel
         self.bot_name = bot_name
         self.logger = logger
+        self.parser = parser
         self._client = None
         self._client_connection = None
 
@@ -29,7 +30,7 @@ class IrcClient(object):
         self.logger.write(event.source.nick, event.arguments[0])
 
     def answer(self, connection, event):
-        [connection.privmsg(event.source.nick, "{0}: {1}".format(*msg)) for msg in self.logger.last(10)]
+        [connection.privmsg(event.source.nick, msg) for msg in self.parser.parse(event.arguments[0])]
 
     def graceful_stop(self, signum, frame):
         self._client.disconnect_all("{0} is going home now.".format(self.bot_name))

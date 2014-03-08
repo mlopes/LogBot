@@ -4,12 +4,15 @@ import signal
 from logbot import Daemonizer
 from logbot import IrcClient
 from logbot import Logger
+from logbot import Parser
 
 if __name__ == "__main__":
     logger = Logger()
     logger.initialise()
 
-    irc_client = IrcClient('irc.freenode.net', 6667, '#openpassword', 'super_mega_bot', logger)
+    parser = Parser(logger)
+
+    irc_client = IrcClient('irc.freenode.net', 6667, '#openpassword', 'super_mega_bot', logger, parser)
     irc_client.start()
 
     daemonizer = Daemonizer('/dev/null', '/tmp/daemon.log', '/tmp/daemon.log')
