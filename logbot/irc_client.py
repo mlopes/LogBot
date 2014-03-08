@@ -1,5 +1,5 @@
 import irc.client
-import os
+import sys
 
 
 class IrcClient(object):
@@ -9,6 +9,8 @@ class IrcClient(object):
         self.channel = channel
         self.bot_name = bot_name
         self.logger = logger
+        self._client = None
+        self._client_connection = None
 
     def start(self):
         self._client = irc.client.IRC()
@@ -32,7 +34,7 @@ class IrcClient(object):
     def graceful_stop(self, signum, frame):
         self._client.disconnect_all("{0} is going home now.".format(self.bot_name))
         self.logger.close()
-        os._exit(0)
+        sys.exit(0)
 
     def process_forever(self):
         self._client.process_forever()

@@ -5,6 +5,10 @@ class Logger(object):
     _table_name = 'irc_log'
     _database_name = "logbot.db"
 
+    def __init__(self):
+        self.connection = None
+        self.cursor = None
+
     def initialise(self):
         self.connection = sqlite3.connect(self._database_name)
         self.cursor = self.connection.cursor()
