@@ -1,5 +1,6 @@
 import irc.client
 import sys
+import time
 
 
 class IrcClient(object):
@@ -30,7 +31,9 @@ class IrcClient(object):
         self.logger.write(event.source.nick, event.arguments[0])
 
     def answer(self, connection, event):
-        [connection.privmsg(event.source.nick, msg) for msg in self.parser.parse(event.arguments[0])]
+        for msg in self.parser.parse(event.arguments[0]):
+            connection.privmsg(event.source.nick, msg)
+            time.sleep(1)
 
     def graceful_stop(self, signum, frame):
         self._client.disconnect_all("{0} is going home now.".format(self.bot_name))
